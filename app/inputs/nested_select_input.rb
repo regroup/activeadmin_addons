@@ -65,6 +65,8 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
     attribute = level[:attribute]
     instance = instance_from_attribute_name(attribute)
 
+    parent_attribute = level[:parent_as] || level[:parent_attribute]
+
     opts = {}
     opts["class"] = select_classes(level)
     opts["data-fields"] = get_option(level, :fields, ["name"]).to_json
@@ -76,15 +78,18 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
     opts["id"] = build_select_id(attribute)
     opts["data-url"] = get_option(level, :url, build_url(attribute))
     opts["data-selected"] = instance.try(opts["data-display_name"])
+    opts["data-order_by"] = (level[:order_by] || nil).to_json
+    opts["name"] = "" if level[:fake_attr]
 
-    opts.merge(select_html_parent_options(level[:parent_attribute]))
+    opts.merge(select_html_parent_options(level[:parent_attribute], parent_attribute))
   end
 
-  def select_html_parent_options(parent_attribute)
+  def select_html_parent_options(parent_attribute, parent_attribute_name)
     opts = {}
     return opts unless parent_attribute
     opts["data-parent"] = parent_attribute
     opts["data-parent_id"] = @object.send(parent_attribute)
+    opts["data-parent_attribute_name"] = parent_attribute_name
     opts
   end
 

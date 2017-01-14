@@ -35,10 +35,11 @@ $(function() {
       var fields = $(el).data('fields');
       var displayName = $(el).data('display_name');
       var parent = $(el).data('parent');
+      var parentAttributeName = $(el).data('parent_attribute_name') || $(el).data('parent');
       var model = $(el).data('model');
       var collection = $(el).data('collection');
       var minimumInputLength = $(el).data('minimum_input_length');
-      var order = fields[0] + '_desc';
+      var order = $(el).data('order_by') || fields[0] + '_desc';
       var parentId = $(el).data('parent_id') || INVALID_PARENT_ID;
       var selectInstance;
 
@@ -47,23 +48,23 @@ $(function() {
         dataType: 'json',
         delay: 250,
         data: function(term) {
-          var textQuery = { m: 'or' };
+          // var textQuery = { m: 'or' };
+          var textQuery = {};
           fields.forEach(function(field) {
             textQuery[field + '_contains'] = term;
           });
 
           var query =  {
             order: order,
-            q: {
+            q: textQuery
+            // {
               // groupings: [textQuery],
               // combinator: 'and'
-            }
+            // }
           };
 
-          query = Object.assign(query, textQuery);
-
           if (!!parent) {
-            query.q[parent + '_eq'] = parentId;
+            query.q[parentAttributeName + '_eq'] = parentId;
           }
 
           return query;
@@ -124,6 +125,8 @@ $(function() {
           if(!parentId) {
             parentId = INVALID_PARENT_ID;
           }
+
+          console.log(parentId);
         });
       }
 
