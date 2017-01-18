@@ -72,6 +72,7 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
     opts["data-display_name"] = get_option(level, :display_name,  "name")
     opts["data-minimum_input_length"] = get_option(level, :minimum_input_length, 1)
     opts["data-collection"] = (level[:collection] || nil).to_json
+    opts["data-parent_attribute_name"] = level[:parent_attribute_name] || level[:parent_attribute]
 
     opts["id"] = build_select_id(attribute)
     opts["data-url"] = get_option(level, :url, build_url(attribute))
@@ -109,11 +110,13 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
 
   def set_parent_value(level_data)
     parent_attribute = level_data[:parent_attribute]
+    parent_attribute_name = level_data[:parent_attribute_name] || parent_attribute
+
     return unless parent_attribute
     add_virtual_accessor(parent_attribute)
     instance = instance_from_attribute_name(level_data[:attribute])
-    if instance && instance.respond_to?(parent_attribute)
-      @object.send("#{parent_attribute}=", instance.send(parent_attribute))
+    if instance && instance.respond_to?(parent_attribute_name)
+      @object.send("#{parent_attribute}=", instance.send(parent_attribute_name))
     end
   end
 

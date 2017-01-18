@@ -64,7 +64,7 @@ $(function() {
           };
 
           if (!!parent) {
-            query.q[parentAttributeName + '_eq'] = parentId;
+            query.q[parentAttributeName + "_eq"] = parentId;
           }
 
           return query;
@@ -126,7 +126,6 @@ $(function() {
             parentId = INVALID_PARENT_ID;
           }
 
-          console.log(parentId);
         });
       }
 
