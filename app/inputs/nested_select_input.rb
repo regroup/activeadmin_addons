@@ -65,8 +65,6 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
     attribute = level[:attribute]
     instance = instance_from_attribute_name(attribute)
 
-    parent_attribute = level[:parent_as] || level[:parent_attribute]
-
     opts = {}
     opts["class"] = select_classes(level)
     opts["data-fields"] = get_option(level, :fields, ["name"]).to_json
@@ -74,6 +72,7 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
     opts["data-display_name"] = get_option(level, :display_name,  "name")
     opts["data-minimum_input_length"] = get_option(level, :minimum_input_length, 1)
     opts["data-collection"] = (level[:collection] || nil).to_json
+    opts["data-parent_attribute_name"] = level[:parent_attribute_name] || level[:parent_attribute]
 
     opts["id"] = build_select_id(attribute)
     opts["data-url"] = get_option(level, :url, build_url(attribute))
@@ -81,15 +80,15 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
     opts["data-order_by"] = (level[:order_by] || nil).to_json
     opts["name"] = "" if level[:fake_attr]
 
-    opts.merge(select_html_parent_options(level[:parent_attribute], parent_attribute))
+    opts.merge(select_html_parent_options(level[:parent_attribute]))
   end
 
-  def select_html_parent_options(parent_attribute, parent_attribute_name)
+  def select_html_parent_options(parent_attribute)
     opts = {}
     return opts unless parent_attribute
     opts["data-parent"] = parent_attribute
     opts["data-parent_id"] = @object.send(parent_attribute)
-    opts["data-parent_attribute_name"] = parent_attribute_name
+    opts["data-parent_attribute"] = parent_attribute
     opts
   end
 
@@ -111,11 +110,13 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
 
   def set_parent_value(level_data)
     parent_attribute = level_data[:parent_attribute]
+    parent_attribute_name = level_data[:parent_attribute_name] || parent_attribute
+
     return unless parent_attribute
     add_virtual_accessor(parent_attribute)
     instance = instance_from_attribute_name(level_data[:attribute])
-    if instance && instance.respond_to?(parent_attribute)
-      @object.send("#{parent_attribute}=", instance.send(parent_attribute))
+    if instance && instance.respond_to?(parent_attribute_name)
+      @object.send("#{parent_attribute}=", instance.send(parent_attribute_name))
     end
   end
 
