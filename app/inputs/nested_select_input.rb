@@ -6,7 +6,7 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
       a = level_data[:attribute]
       set_parent_value(level_data)
       html_elems << builder.text_field(a, select_html_options(level_data))
-      html_elems << builder.label(a, translated_attribute(a))
+      html_elems << builder.label(a, label_attribute(level_data))
     end
 
     input_wrapping do
@@ -131,6 +131,10 @@ class NestedSelectInput < Formtastic::Inputs::StringInput
   def add_virtual_accessor(attribute)
     return unless attribute
     @object.singleton_class.send(:attr_accessor, attribute) unless @object.respond_to?(attribute)
+  end
+
+  def label_attribute(level)
+    get_option(level, :label, translated_attribute(level[:attribute]))
   end
 
   def translated_attribute(attribute)
